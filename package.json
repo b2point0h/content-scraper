@@ -1,0 +1,14 @@
+{
+  "name": "content-scraper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "scraper.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+  	"node": "4.2.4"
+  },
+  "author": "Brandon Leung",
+  "license": "ISC"
+}

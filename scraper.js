@@ -1,5 +1,9 @@
 "use strict";
 
+
+
+
+
 // Content scraper application. Runs once a day
 
 // Scraped info should be stored in a CSV with today's date in proper format '2016-08-12.csv'
