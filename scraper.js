@@ -1,6 +1,6 @@
 "use strict";
 
-// Node required modules
+// Node required modules 
 var request = require("request"); // Allows us to make HTTP calls
 var cheerio = require("cheerio"); // Allows us to traverse DOM using jQuery syntax
 var json2csv = require("json2csv"); // Converts the json object we create into a CSV
