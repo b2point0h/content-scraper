@@ -2,8 +2,8 @@
 
 // Node required modules 
 var request = require("request"); // Allows us to make HTTP calls
-var cheerio = require("cheerio"); // Allows us to traverse DOM using jQuery syntax
-var json2csv = require("json2csv"); // Converts the json object we create into a CSV
+var cheerio = require("cheerio"); // Allows us to traverse DOM using jQuery syntax. I chose this package because cheerio allows us to write jQuery like syntax for traversing DOM elements easilly.
+var json2csv = require("json2csv"); // Converts the json object we create into a CSV. I chose this package because it has many releases and is actively maintained.
 var moment = require("moment"); // Easy formatting of Date/Time stamp
 var fs = require("fs"); // Allows us to write files
 
@@ -19,40 +19,48 @@ var errorHandler = function(error) { // Error Handling function
 
 // Globals
 var url = "http://shirts4mike.com/";
-var totalShirts = new Array();
+var totalShirts = new Array(); // We create an empty array to push the shirts data to, for using in the json2csv convert
+var shirtsToScrape = new Set(); // The Set allows us to pass shirts we want to scrape, but won't create duplicates. Pretty awesome!
+var shirtsSeen = []; // To log all the shirt links we've seen in total
 var csvHeaders = ["Title", "Price", "ImageURL", "URL", "Time", ];
 
 request(url, function (error, response, html) { // Initial request to the URL
-  if (!error && response.statusCode == 200) {
+  if (!error && response.statusCode == 200) { // If we get anything but a successful 200 HTTP code, log the error and stop the program
     var $ = cheerio.load(html);
-    var shirtsUrl = $(".shirts > a").attr("href"); // First, find the shirts page
-    var shirtsPage = url + shirtsUrl; // set the actual shirt page url
-    
-      request(shirtsPage, function (error, response, html){ // Now that we have the shirts page, 
-        if (!error) {
-          var $ = cheerio.load(html);
-          var completed = $(".products > li > a").length; // Calculate the length of the shirts list
-          
-          $(".products > li > a").each(function (index) { // Iterate over all the shirts we've found
-            var singleShirt = (url + $(this).attr("href")); // Grab the single shirt URL
-            request(singleShirt, function(error, response, html){ // On each individual shirt we've found, grab necessary info
-              if (!error) {
+      $("a[href*=shirt]").each(function() { // Find all URLs with the word shirt
+        shirtsToScrape.add($(this).attr("href")); // Add those URLS to the shirtsToScrape Set
+        if (shirtsSeen.indexOf($(this).attr("href")) === -1) {
+          shirtsSeen.push($(this).attr("href"));
+        }   
+      });
+    request(url + shirtsSeen[0], function(error, response, html) {
+      if (!error && response.statusCode == 200) {
+        var $ = cheerio.load(html);
+          $("a[href*=shirt]").each(function() {
+            shirtsToScrape.add($(this).attr("href"));
+            shirtsToScrape.delete("shirts.php");
+            if (shirtsSeen.indexOf($(this).attr("href")) === -1) {
+              shirtsSeen.push($(this).attr("href"));
+            }
+          });
+          shirtsToScrape.forEach(function(singleUrl) { // Loop over the set of Shirts we've found
+            var singleShirt = url + singleUrl; // Create a link to request each shirt to be scraped
+            request(singleShirt, function (error, response, html) { 
+              if (!error && response.statusCode == 200) { 
                 var $ = cheerio.load(html);
-                var title = $("title").text(); 
+                var title = $("title").text();  // Grab all shirt data
                 var price = $(".price").text();
                 var img = $(".shirt-picture img").attr("src");
-                var shirts = {}; // Create empty JSON object with shit data
+                var shirts = {}; // Create empty JSON object with shirt data
                 shirts.Title = title;
                 shirts.Price = price;
                 shirts.ImageURL = img;
                 shirts.URL = singleShirt;
-                shirts.Time = moment().format("MMMM Do YYYY, h:mm:ss a");
+                shirts.Time = moment().format("MMMM Do YYYY, h:mm:ss a"); // Create the timestamp
                 totalShirts.push(shirts); // Push the shirts data to the totalShirts array
-                
-                if (totalShirts.length === completed) { // If all the shirts have been grabbed, grab the date time
+                 // If all the shirts have been grabbed, grab the date time
                   var time = moment().format("YYYY[-]MM[-]DD");
                   var dir = "./data"; // Create the data directory
-                  
                   if(!fs.existsSync(dir)) { // If the directory does not exist, create it
                     fs.mkdirSync(dir);
                   }
@@ -62,18 +70,17 @@ request(url, function (error, response, html) { // Initial request to the URL
                       console.log("File saved");
                     });
                   });
-                } // End check if all shirts grabbed
-              } else {
+                 // End check if all shirts grabbed
+               } else {
                 errorHandler(error);
-              }
-            }); // End singleShirt request
-          }); // End Products each function
-        } else {
-          errorHandler(error);
-        }
-      }); // End shirtsPage request
-    
+               }
+            });
+          }); // End single shirt scrape
+      } else {
+        errorHandler(error);
+      }
+    }); // End each loop request   
   } else {
-  	errorHandler(error);
+    errorHandler(error);
   }
-}); // End main page request
+}); // End main page request    
