@@ -8,12 +8,12 @@ var moment = require("moment"); // Easy formatting of Date/Time stamp
 var fs = require("fs"); // Allows us to write files
 
 var errorHandler = function(error) { // Error Handling function
-  console.log("The scraper had an issue with " + url + ". Either the site is down or your connection is bad.");
+  // console.log("The scraper had an issue with " + url + ". Either the site is down or your connection is bad.");
   var errorDate = new Date();
   var errorLog = "[" + errorDate + "] " + error.message + "\n"; // Create the formatted error message with date
   fs.appendFile("scrape-error.log", errorLog, function(err) { // Write the file
     if (err) throw err;
-    console.log("There was an error. It has been logged to scrape-error.log");
+    // console.log("There was an error. It has been logged to scrape-error.log");
   });
 };
 
@@ -67,7 +67,7 @@ request(url, function (error, response, html) { // Initial request to the URL
                   json2csv({ data: totalShirts, fields: csvHeaders }, function(err, csv) { // Create csv with array of data &
                     fs.writeFile( dir + "/" + time + ".csv", csv, function(err) { // csv headers we defined
                       if (err) throw err;
-                      console.log("File saved");
+                      // console.log("File saved");
                     });
                   });
                  // End check if all shirts grabbed
