@@ -2,18 +2,18 @@
 
 // Node required modules
 var request = require("request"); // Allows us to make HTTP calls
-var cheerio = require("cheerio"); // Allows us to traverse DOM using jQuery syntax. I chose this package because cheerio allows us to write jQuery like syntax for traversing DOM elements easilly.
+var cheerio = require("cheerio"); // Allows us to traverse DOM using jQuery syntax. I chose this package because cheerio allows us to write jQuery like syntax for traversing DOM elements easilly. I chose this package because it is actively maintained and is fast and flexible. 
 var json2csv = require("json2csv"); // Converts the json object we create into a CSV. I chose this package because it has many releases and is actively maintained.
 var moment = require("moment"); // Easy formatting of Date/Time stamp
 var fs = require("fs"); // Allows us to write files
 
 var errorHandler = function(error) { // Error Handling function
-  // console.log("The scraper had an issue with " + url + ". Either the site is down or your connection is bad.");
+  console.log("The scraper had an issue with " + url + ". Either the site is down or your connection is bad.");
   var errorDate = new Date();
   var errorLog = "[" + errorDate + "] " + error.message + "\n"; // Create the formatted error message with date
   fs.appendFile("scrape-error.log", errorLog, function(err) { // Write the file
     if (err) throw err;
-    // console.log("There was an error. It has been logged to scrape-error.log");
+    console.log("There was an error. It has been logged to scrape-error.log");
   });
 };
 
