@@ -14,7 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "cheerio": "^0.20.0",
-    "json2csv": "^3.6.2",
+    "json-2-csv": "^2.0.22",
     "moment": "^2.14.1",
     "request": "^2.74.0"
   },
